@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador FILMBOX</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Estilos base del generador */
+    body {
+      background-color: #0d0d0d;
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .app-container {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 16px;
+    }
+
+    .generator-controls {
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .generator-controls h1 {
+        font-size: 1.5rem;
+        border-bottom: 2px solid #e50914;
+        padding-bottom: 10px;
+        margin-top: 0;
+        margin-bottom: 20px;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #333;
+      background-color: #222;
+      color: #fff;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+    
+    textarea {
+        height: 250px;
+        resize: vertical;
+    }
+
+    button {
+      background-color: #e50914;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #ff3840;
+    }
+    
+    .loading-message {
+        color: #e50914;
+        margin-left: 15px;
+        display: none;
+    }
+    
+    .error-message {
+        color: #ff6347; /* Tomato */
+        margin-top: 15px;
+        font-weight: bold;
+    }
+
+    /* Estilos de la plantilla del usuario (FILMBOX) */
+    .filmbox-template-container {
+        margin-top: 30px;
+    }
+    
+    /* VIDEO */
+    .video-container {
+      background: #000;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+    }
+
+    iframe {
+      width: 100%;
+      height: 200px;
+      border: none;
+    }
+
+    /* INFO */
+    .info-box {
+      background: #111;
+      border-radius: 16px;
+      padding: 16px;
+      margin-top: 16px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .poster {
+      width: 100px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.1);
+      flex-shrink: 0;
+    }
+
+    .details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+
+    .details h2 {
+      margin: 0 0 8px 0;
+      font-size: 1.2rem;
+      line-height: 1.3em;
+      word-wrap: break-word;
+      white-space: normal;
+    }
+
+    .icons {
+      display: flex;
+      gap: 16px;
+      margin-top: 4px;
+      color: #ccc;
+      font-size: 0.9rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .icon-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .icon-item svg {
+      width: 18px;
+      height: 18px;
+      fill: #e50914;
+      flex-shrink: 0;
+    }
+
+    /* SINOPSIS */
+    .synopsis {
+      background: #111;
+      border-radius: 16px;
+      padding: 16px;
+      margin-top: 16px;
+      line-height: 1.5;
+      font-size: 0.95rem;
+      color: #ccc;
+    }
+
+    /* Media Query para móvil */
+    @media (max-width: 600px) {
+        .info-box {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .poster {
+            width: 120px;
+            margin-bottom: 10px;
+        }
+        .details h2 {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+        }
+        .icons {
+            justify-content: center;
+            gap: 10px;
+        }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <div class="generator-controls">
+      <h1>🎬 Generador HTML de Películas (TMDB)</h1>
+
+      <label for="tmdbId">ID de Película de TMDB:</label>
+      <input type="text" id="e5c9dbb21811cb00d1294c22a659026e" placeholder="Ej: 507089 (Five Nights at Freddy's)">
+
+      <label for="videoUrl">URL del Reproductor (ej: LZPlayer):</label>
+      <input type="text" id="videoUrl" placeholder="Ej: https://lzplayerfree.blogspot.com/?url=U2FsdGVkX1%2B..." value="https://lzplayerfree.blogspot.com/?url=COLOCA_TU_ENLACE_CODIFICADO_AQUI">
+
+      <button onclick="generateHtml()">Generar HTML</button>
+      <span class="loading-message" id="loading">Cargando datos...</span>
+
+      <div class="error-message" id="errorMessage" style="display: none;"></div>
+    </div>
+
+    <div class="generator-controls">
+        <h2>Código HTML Generado</h2>
+        <textarea id="outputHtml" readonly placeholder="El código HTML aparecerá aquí..."></textarea>
+        <button onclick="copyToClipboard('outputHtml')">Copiar al Portapapeles</button>
+        <p class="error-message" style="color: #61f973;" id="copySuccess" style="display: none;"></p>
+
+        <p style="color: #e50914; font-size: 0.8rem; margin-top: 20px;">
+            ⚠️ **Importante:** Debes reemplazar la variable `TMDB_API_KEY` dentro del script con tu clave de API real de TMDB.
+        </p>
+    </div>
+
+  </div>
+
+  <script>
+    // ⚠️ Reemplaza esta variable con tu clave de API de TMDB
+    const TMDB_API_KEY = "e5c9dbb21811cb00d1294c22a659026e"; 
+    const POSTER_BASE_URL = "https://image.tmdb.org/t/p/original";
+    
+    const loading = document.getElementById('loading');
+    const errorMessage = document.getElementById('errorMessage');
+
+    function formatRuntime(minutes) {
+      if (!minutes) return 'N/A';
+      const hours = Math.floor(minutes / 60);
+      const mins = minutes % 60;
+      
+      let result = [];
+      if (hours > 0) result.push(`${hours}h`);
+      if (mins > 0) result.push(`${mins} min`);
+      
+      return result.join(' ');
+    }
+    
+    async function fetchMovieDetails(movieId) {
+      if (!TMDB_API_KEY || TMDB_API_KEY === "TU_TMDB_API_KEY_AQUÍ") {
+        return { error: "Por favor, reemplaza 'TU_TMDB_API_KEY_AQUÍ' con tu clave de TMDB." };
+      }
+      
+      const url = `https://api.themoviedb.org/3/movie/${movieId}?language=es-ES&api_key=${TMDB_API_KEY}`;
+      
+      try {
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          let msg = `Error al obtener datos: Código ${response.status}.`;
+          if (errorData.status_message) {
+             msg += ` Mensaje: ${errorData.status_message}`;
+          }
+          return { error: msg };
+        }
+        
+        return await response.json();
+        
+      } catch (e) {
+        return { error: `Error de red o conexión: ${e.message}` };
+      }
+    }
+
+    function generateHtml() {
+      const tmdbId = document.getElementById('tmdbId').value.trim();
+      const videoUrl = document.getElementById('videoUrl').value.trim();
+      const outputHtml = document.getElementById('outputHtml');
+      
+      errorMessage.style.display = 'none';
+      outputHtml.value = '';
+
+      if (!tmdbId) {
+        errorMessage.textContent = 'Por favor, introduce una ID de película de TMDB.';
+        errorMessage.style.display = 'block';
+        return;
+      }
+      
+      if (!videoUrl) {
+        errorMessage.textContent = 'Por favor, introduce la URL del reproductor (LZPlayer, etc.).';
+        errorMessage.style.display = 'block';
+        return;
+      }
+
+      loading.style.display = 'inline';
+
+      fetchMovieDetails(tmdbId).then(data => {
+        loading.style.display = 'none';
+
+        if (data.error) {
+          errorMessage.textContent = data.error;
+          errorMessage.style.display = 'block';
+          return;
+        }
+
+        const title = data.title || 'Título Desconocido';
+        const year = data.release_date ? data.release_date.substring(0, 4) : 'N/A';
+        const runtime = formatRuntime(data.runtime);
+        const rating = data.vote_average ? data.vote_average.toFixed(1) : 'N/A';
+        const posterPath = data.poster_path ? `${POSTER_BASE_URL}${data.poster_path}` : 'https://placehold.co/100x150/000/fff?text=No+Poster';
+        const overview = data.overview || 'Sinopsis no disponible en español.';
+        
+        // --- CONSTRUCCIÓN DEL HTML FINAL (Plantilla del usuario) ---
+        const generatedCode = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FILMBOX: ${title}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #0d0d0d;
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 16px;
+    }
+
+    /* VIDEO */
+    .video-container {
+      background: #000;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+    }
+
+    iframe {
+      width: 100%;
+      height: 200px;
+      border: none;
+    }
+
+    /* INFO */
+    .info-box {
+      background: #111;
+      border-radius: 16px;
+      padding: 16px;
+      margin-top: 16px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .poster {
+      width: 100px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.1);
+      flex-shrink: 0;
+    }
+
+    .details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+
+    .details h2 {
+      margin: 0 0 8px 0;
+      font-size: 1.2rem;
+      line-height: 1.3em;
+      word-wrap: break-word;
+      white-space: normal;
+    }
+
+    .icons {
+      display: flex;
+      gap: 16px;
+      margin-top: 4px;
+      color: #ccc;
+      font-size: 0.9rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .icon-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .icon-item svg {
+      width: 18px;
+      height: 18px;
+      fill: #e50914;
+      flex-shrink: 0;
+    }
+
+    /* SINOPSIS */
+    .synopsis {
+      background: #111;
+      border-radius: 16px;
+      padding: 16px;
+      margin-top: 16px;
+      line-height: 1.5;
+      font-size: 0.95rem;
+      color: #ccc;
+    }
+    
+    /* Responsive para móviles */
+    @media (max-width: 600px) {
+        .info-box {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .poster {
+            width: 120px;
+            margin-bottom: 10px;
+        }
+        .details h2 {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+        }
+        .icons {
+            justify-content: center;
+            gap: 10px;
+        }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- VIDEO -->
+    <div class="video-container" id="video-container">
+      <iframe id="videoPlayer" src="${videoUrl}" allowfullscreen></iframe>
+    </div>
+
+    <!-- INFO -->
+    <div class="info-box">
+      <img src="${posterPath}" alt="Poster de ${title}" class="poster">
+      <div class="details">
+        <h2>${title}</h2>
+        <div class="icons">
+          <div class="icon-item">
+            <!-- Calendar -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 16H5V10h14v10ZM5 8V6h14v2H5Z"/></svg>
+            <span>${year}</span>
+          </div>
+
+          <div class="icon-item">
+            <!-- Clock -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm0 2a10 10 0 1 1 0-20 10 10 0 0 1 0 20Zm.5-10V7h-1.5v6h5v-1.5Z"/></svg>
+            <span>${runtime}</span>
+          </div>
+
+          <div class="icon-item">
+            <!-- Star -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12 17.27 6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.73L5.82 21Z"/></svg>
+            <span>${rating}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SINOPSIS -->
+    <div class="synopsis">
+  ${overview}
+    </div>
+
+  </div>
+
+</body>
+</html>`;
+        // --- FIN CONSTRUCCIÓN HTML ---
+
+        outputHtml.value = generatedCode;
+        
+      }).catch(e => {
+        loading.style.display = 'none';
+        errorMessage.textContent = `Ocurrió un error inesperado: ${e.message}`;
+        errorMessage.style.display = 'block';
+      });
+    }
+
+    function copyToClipboard(elementId) {
+        const textarea = document.getElementById(elementId);
+        textarea.select();
+        textarea.setSelectionRange(0, 99999); // Para móviles
+        
+        try {
+            document.execCommand('copy');
+            const successMsg = document.getElementById('copySuccess');
+            successMsg.textContent = '¡Copiado al portapapeles!';
+            successMsg.style.display = 'block';
+            setTimeout(() => { successMsg.textContent = ''; }, 2000);
+        } catch (err) {
+            console.error('No se pudo copiar: ', err);
+            const successMsg = document.getElementById('copySuccess');
+            successMsg.textContent = 'Error al copiar. Por favor, selecciona el texto manualmente.';
+            successMsg.style.display = 'block';
+        }
+    }
+
+    // Inicializar el mensaje de error para que no se muestre al inicio
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('errorMessage').style.display = 'none';
+    });
+  </script>
+</body>
+          </html>
