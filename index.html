@@ -39,7 +39,7 @@
 <body>
 
   <h1>🎬 Generador FILMBOX</h1>
-  <p>Introduce el ID de TMDb y el link del video:</p>
+  <p>Introduce el ID de TMDb y el link del video (por ejemplo: https://lzplayerfree.blogspot.com/?url=...):</p>
 
   <input type="text" id="movieId" placeholder="ID de la película (por ejemplo: 939243)">
   <input type="text" id="videoLink" placeholder="Link del video (iframe o servidor)">
@@ -112,7 +112,10 @@
       margin: 0 0 8px 0; 
       font-size: 1.2rem; 
       line-height: 1.3em;
-      text-transform: uppercase; 
+      text-transform: uppercase;
+      white-space: normal;
+      word-break: break-word;
+      overflow-wrap: anywhere;
     }
     .icons { display: flex; gap: 16px; margin-top: 4px; color: #ccc; font-size: 0.9rem; flex-wrap: wrap; }
     .icon-item { display: flex; align-items: center; gap: 6px; }
